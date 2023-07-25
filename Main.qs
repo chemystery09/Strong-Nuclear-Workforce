@@ -62,7 +62,7 @@
     }   
 
 
-    operation ApplyVariationalCircuit(qubits : Qubit[], parameters : Double[]) : Unit {
+    operation RealAmplitudes(qubits : Qubit[], parameters : Double[]) : Unit {
         // Apply layer of rotation gates
         for idx in IndexRange(qubits) {
             Ry(parameters[idx], qubits[idx]);
@@ -84,25 +84,70 @@
 
     operation quantumVariationalClassifier (qubits: Qubit[], x : Double[], θ : Double[]) : Unit {
         ZZFeatureMap(qubits, x);
-        ApplyVariationalCircuit(qubits, θ);
+        RealAmplitudes(qubits, θ);
     }
 
-    operation meanSquaredError(guesses : Double[], answers : Double[]) : Double { // For our case, answers should be a boolean array converted to a double array
+    // MEAN SQUARED ERROR OPERATION IS REMOVED, SINCE MSE CALCULATION CAN BE OPTIMIZED BETTER WITHOUT IT
+    // operation meanSquaredError(guesses : Double[], answers : Double[]) : Double { // For our case, answers should be a boolean array converted to a double array
         
-        // Our program supports the answer list being longer than the guesses, by the way
+    //     // Our program supports the answer list being longer than the guesses, by the way
     
-        let l = Length(guesses);
+    //     let l = Length(guesses);
         
+    //     mutable sumOfSquaredErrors = 0.0;
+
+    //     for i in (0 .. l-1) {
+    //         let error = guesses[i] - answers[i]; // Order doesn't matter, since the difference will be squared
+    //         let squaredError = (error ^ 2);
+
+    //         set sumOfSquaredErrors += squaredError;
+    //     }
+
+    //     return sumOfSquaredErrors / IntAsDouble(l);
+
+    // }
+
+    // iterations would be how many times the algorithms cycles through all of the training data
+    operation doMachineLearning (trainingData : Double[][], trainingAnswers : Double[], iterations : Int) : Unit { // For our case, trainingAnswers should be a boolean array converted to a double array
+        
+        let dimensions = Length(trainingData[0]); // The number of data points for each penguin (as of writing this, this is 4)
+        
+        mutable parameters = [0.0, size = (2*dimensions) ]; // This is θ (theta)
+
         mutable sumOfSquaredErrors = 0.0;
+        mutable numOfSquaredErrors = 0;
+        for iteration in (1 .. iterations) { // Not to be confused with index
 
-        for i in (0 .. l-1) {
-            let error = guesses[i] - answers[i]; // Order doesn't matter, since the difference will be squared
-            let squaredError = (error ^ 2);
+            for i in IndexRange(trainingData) {
 
-            set sumOfSquaredErrors += squaredError;
+                let penguinData = trainingData[i]; 
+
+
+                use qubits = Qubit[dimensions];
+
+                quantumVariationalClassifier(qubits, penguinData, parameters); // NOTE: WE ARE SUPPOSED TO GET THE PROBABILITY OF THE PARITY QUBIT BEING A ONE OR ZERO -- NOT SURE HOW TO DO THAT
+                    // THE FOLLOWING CODE CURRENTLY ASSUMES THAT IF IT'S OUTPUTS A ONE, THEN IT'S A ONE 100% OF THE TIME
+                    // Would we run it multiple times to get an estimate?
+
+                let probabilityOfOne = IntAsDouble(ResultAsInt( M( qubits[dimensions-1] ) )); // We check the parity qubit for the classifier's output
+
+
+
+                // Mean Squared Error Calculation:
+                let error = probabilityOfOne - trainingAnswers[i]; // Order doesn't matter, since the difference will be squared
+                let squaredError = (error ^ 2.0);
+
+                set sumOfSquaredErrors += squaredError;
+                set numOfSquaredErrors += 1;
+
+                let meanSquaredError = sumOfSquaredErrors / IntAsDouble(numOfSquaredErrors);
+                Message("MSE: " + DoubleAsString(meanSquaredError));
+
+
+
+                // INSERT OPTIMIZER SHTUFF HERE
+            
+            }
         }
-
-        return sumOfSquaredErrors / IntAsDouble(l);
-
     }
 }
