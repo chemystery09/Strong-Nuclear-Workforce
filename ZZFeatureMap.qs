@@ -1,4 +1,4 @@
-namespace QuantumVariationalClassifier {
+ namespace QuantumVariationalClassifier {
 
     operation AdvancedPhaseGate ( // The Qiskit P (PhaseGate) Gate is just an Rz gate. A lot of times in the circuit, we use it like this, however:
         qubit : Qubit,
@@ -60,4 +60,34 @@ namespace QuantumVariationalClassifier {
 
         CNOT(q2,q3);
     }   
+
+
+    operation ApplyVariationalCircuit(qubits : Qubit[], parameters : Double[]) : Unit {
+        // Apply layer of rotation gates
+        for idx in IndexRange(qubits) {
+            Ry(parameters[idx], qubits[idx]);
+        }
+
+        // Apply a layer of CNOT gates
+        for idx in 0 .. Length(qubits)-2 {
+            for i in idx+1 .. Length(qubits)-1{
+                CNOT(qubits[idx], qubits[i]);
+            }
+        }
+
+
+        // Apply another layer of rotation gates
+        for idx in IndexRange(qubits) {
+            Ry(parameters[idx + Length(qubits)], qubits[idx]);
+        }
+    }
+
+    // Step 3: Define your function to initialize and run the quantum circuit
+    operation RunVariationalCircuit(parameters : Double[]) : Unit {
+        use qubits = Qubit[4]; // 4 is an example; adjust to match your actual number of qubits
+        ApplyVariationalCircuit(qubits, parameters);
+        // Continue with measurement, etc.
+        ResetAll(qubits);
+    }
+
 }
