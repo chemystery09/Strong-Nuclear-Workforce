@@ -1,8 +1,11 @@
-import pandas as pd
+#import pandas as pd
 import csv
+import os
 
+script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+abs_file_path = os.path.join(script_dir, "penguins.csv")
 
-penguins=open(r'C:\Users\ceqcx\Downloads\data\penguins.csv')
+penguins=open(abs_file_path)
 
 lines=penguins.readlines()
 lines.pop(0)
