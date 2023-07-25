@@ -82,12 +82,8 @@
         }
     }
 
-    // Step 3: Define your function to initialize and run the quantum circuit
-    operation RunVariationalCircuit(parameters : Double[]) : Unit {
-        use qubits = Qubit[4]; // 4 is an example; adjust to match your actual number of qubits
-        ApplyVariationalCircuit(qubits, parameters);
-        // Continue with measurement, etc.
-        ResetAll(qubits);
+    operation quantumVariationalClassifier (qubits: Qubit[], x : Double[], θ : Double[]) : Unit {
+        ZZFeatureMap(qubits, x);
+        ApplyVariationalCircuit(qubits, θ);
     }
-
 }
