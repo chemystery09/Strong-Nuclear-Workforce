@@ -86,4 +86,23 @@
         ZZFeatureMap(qubits, x);
         ApplyVariationalCircuit(qubits, θ);
     }
+
+    operation meanSquaredError(guesses : Double[], answers : Double[]) : Double { // For our case, answers should be a boolean array converted to a double array
+        
+        // Our program supports the answer list being longer than the guesses, by the way
+    
+        let l = Length(guesses);
+        
+        mutable sumOfSquaredErrors = 0.0;
+
+        for i in (0 .. l-1) {
+            let error = guesses[i] - answers[i]; // Order doesn't matter, since the difference will be squared
+            let squaredError = (error ^ 2);
+
+            set sumOfSquaredErrors += squaredError;
+        }
+
+        return sumOfSquaredErrors / IntAsDouble(l);
+
+    }
 }
