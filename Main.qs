@@ -61,6 +61,17 @@
         CNOT(q2,q3);
     }   
 
+     operation ZFeatureMap ( // Stealing ZFeatureMap from Qiskit, for ANY number for values
+        register : Qubit[],
+        x : Double[]
+    ) : Unit {
+        ApplyToEach(H, register);
+
+        for i in (0 .. l-1) { 
+            Rz(2.0 * x[i], register[i]);
+        }
+    }
+
 
     operation RealAmplitudes(qubits : Qubit[], parameters : Double[]) : Unit {
         // Apply layer of rotation gates
