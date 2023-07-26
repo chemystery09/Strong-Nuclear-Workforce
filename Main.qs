@@ -9,6 +9,26 @@
         Rz(2.0 * (PI() - x[iOne]) * (PI() - x[iTwo]));
     }
 
+    operation ApplyZZFeatureMap(qs : Qubit[], data : Double[]) : Unit {
+    let numberOfQubits = Length(qs);
+    if (numberOfQubits != Length(data)) {
+        fail "Data length must be equal to the number of qubits.";
+    }
+    for i in 0..numberOfQubits-1 {
+        // Apply Z rotation to each qubit
+        Rz(2.0 * PI() * data[i], qs[i]);
+    }
+    for i in 0..numberOfQubits-1 {
+        for j in i+1..numberOfQubits-1 {
+            // Apply ZZ interaction between each pair of qubits
+            let theta = 2.0 * PI() * data[i] * data[j];
+            CNOT(qs[i], qs[j]);
+            Rz(theta, qs[j]);
+            CNOT(qs[i], qs[j]);
+        }
+    }
+}
+
     operation ZZFeatureMap ( // Stealing ZZFeatureMap from Qiskit, but for only specifically 4 values
         register : Qubit[],
         x : Double[]
