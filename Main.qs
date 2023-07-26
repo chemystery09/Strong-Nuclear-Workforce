@@ -1,13 +1,13 @@
  namespace QuantumVariationalClassifier {
 
-    operation AdvancedPhaseGate ( // The Qiskit P (PhaseGate) Gate is just an Rz gate. A lot of times in the circuit, we use it like this, however:
-        qubit : Qubit,
-        x : Double[],
-        iOne : Int,
-        iTwq : Int
-    ) : Unit {
-        Rz(2.0 * (PI() - x[iOne]) * (PI() - x[iTwo]));
-    }
+    // operation AdvancedPhaseGate ( // The Qiskit P (PhaseGate) Gate is just an Rz gate. A lot of times in the circuit, we use it like this, however:
+    //     qubit : Qubit,
+    //     x : Double[],
+    //     iOne : Int,
+    //     iTwq : Int
+    // ) : Unit {
+    //     Rz(2.0 * (PI() - x[iOne]) * (PI() - x[iTwo]));
+    // }
 
     operation ZZFeatureMap(qs : Qubit[], data : Double[]) : Unit {
         let numberOfQubits = Length(qs);
