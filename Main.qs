@@ -108,7 +108,7 @@
     // }
 
     // iterations would be how many times the algorithms cycles through all of the training data
-    operation doMachineLearning (trainingData : Double[][], trainingAnswers : Double[], iterations : Int) : Unit { // For our case, trainingAnswers should be a boolean array converted to a double array
+    operation doMachineLearning (trainingData : Double[][], trainingAnswers : Double[], iterations : Int, numTimesToRunQVCForProbabilityEstimation : Int) : Unit { // For our case, trainingAnswers should be a boolean array converted to a double array
         
         let dimensions = Length(trainingData[0]); // The number of data points for each penguin (as of writing this, this is 4)
         
@@ -122,14 +122,25 @@
 
                 let penguinData = trainingData[i]; 
 
+                
 
-                use qubits = Qubit[dimensions];
+                // Run QVC and read its output:
+                mutable numOnes = 0;
+                for qvcRepetitions in (1 .. numTimesToRunQVCForProbabilityEstimation) {
+                    use qubits = Qubit[dimensions];
 
-                quantumVariationalClassifier(qubits, penguinData, parameters); // NOTE: WE ARE SUPPOSED TO GET THE PROBABILITY OF THE PARITY QUBIT BEING A ONE OR ZERO -- NOT SURE HOW TO DO THAT
-                    // THE FOLLOWING CODE CURRENTLY ASSUMES THAT IF IT'S OUTPUTS A ONE, THEN IT'S A ONE 100% OF THE TIME
-                    // Would we run it multiple times to get an estimate?
+                    quantumVariationalClassifier(qubits, penguinData, parameters);
 
-                let probabilityOfOne = IntAsDouble(ResultAsInt( M( qubits[dimensions-1] ) )); // We check the parity qubit for the classifier's output
+                    let bitstring = ResultArrayAsBoolArray(MultiM(qubits));
+
+                    let parityBit = bitstring[dimensions-1]; // Parity bit just means the last bit. This is essentially the output of our QVC
+
+                    if parityBit {
+                        set numOnes += 1;
+                    }
+                }
+
+                let probabilityOfOne = IntAsDouble(numOnes) / IntAsDouble(numTimesToRunQVCForProbabilityEstimation);
 
 
 
